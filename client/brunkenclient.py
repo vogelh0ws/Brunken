@@ -1,8 +1,41 @@
 #!/usr/bin/python -tt
+
+# where to make connection between lightbutton and light
+# how to implement tcp messages/protocol 
+#	-> twisted, struct, protobuf
+
+
 from gi.repository import GdkX11, Gtk, Gdk
 import gst
+import socket
 
-stream_url = "file:///home/anselm/Videos/wg_gdo_1.mpg"
+HOST = "localhost"
+PORT =  29478
+
+class BrunkenClient:
+	def __init__(self):
+		self.light1 = Light()
+		self.light2 = Light()
+
+	def connect:
+		self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((HOST, PORT))
+		# send status request
+		# receive status request
+		# set light status
+
+	def set_light(self, light, state):
+		# send light state
+		# receive acknowledge
+		# set local light state
+
+class Light:
+	def __init__(self, number):
+		self.state = False
+
+	def set(self, state):
+		self.state = state
+	
 
 class LogWindow(Gtk.ScrolledWindow):
 
@@ -76,7 +109,7 @@ class MyWindow(Gtk.Window):
 		
 		connectbutton = Gtk.Button(label="Connect")
 		connectbutton.set_property("width-request", 100)
-		connectbutton.connect("clicked", self.connect_disconnect)
+		connectbutton.connect("clicked", self.on_connect_disconnect)
 		controlbut.pack_end(connectbutton, False, False, 0)
 
 		# gstreamer business
@@ -88,9 +121,15 @@ class MyWindow(Gtk.Window):
 		bus.connect("message", self.on_message)
 		bus.connect("sync-message::element", self.on_sync_message)
 
-	def connect_disconnect(self, button):
+	def on_light_toggled(self, button):
+			
+
+	def on_connect_disconnect(self, button):
 		if button.get_label() == "Connect":
 			button.set_label("Disconnect")
+
+			# connect to server
+
 			#self.player.set_property("uri", stream_url)
 			self.player.set_state(gst.STATE_PLAYING)
 		else:
