@@ -18,8 +18,6 @@ class BrunkenClient:
 		self.light2 = Light()
 
 	def connect:
-		self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		s.connect((HOST, PORT))
 		# send status request
 		# receive status request
 		# set light status
@@ -35,7 +33,7 @@ class Light:
 
 	def set(self, state):
 		self.state = state
-	
+
 
 class LogWindow(Gtk.ScrolledWindow):
 
