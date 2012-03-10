@@ -6,33 +6,47 @@
 
 
 from gi.repository import GdkX11, Gtk, Gdk
-import gst
-import socket
+import gst, socket, xmlrpclib
 
-HOST = "localhost"
-PORT =  29478
+TCP_IP = "localhost"
+TCP_PORT =  29478
 
 class BrunkenClient:
-	def __init__(self):
-		self.light1 = Light()
-		self.light2 = Light()
+	def __init__(self, nroflights):
+		self.connected = False
+		self.lights = []
+		for i in range(nroflights):
+			self.lights.append(Light(i))
 
-	def connect:
+	def connect(self):
+		self.cli = xmlrpclib.ServerProxy('http://'+TCP_IP+':'+str(TCP_PORT))
+		
 		# send status request
 		# receive status request
 		# set light status
+		for light in self.lights:
+			self.set_light_state(light.get_number(), self.cli.get_light_state(light.get_number()))
 
-	def set_light(self, light, state):
-		# send light state
-		# receive acknowledge
-		# set local light state
+	def set_light_state(self, nr, state):
+		self.lights[nr].set_state(self.cli.set_light_state(nr, state))
+	def get_light_state(self, nr):
+		return self.lights[nr].get_state()
+	def toggle_light(self, nr):
+		if self.lights[nr].get_state() == True:
+			self.set_light_state(nr, False)
+		else:
+			self.set_light_state(nr, True)
 
 class Light:
-	def __init__(self, number):
-		self.state = False
-
-	def set(self, state):
-		self.state = state
+        def __init__(self, number):
+                self.number = number
+                self.state  = False
+        def get_number(self):
+                return self.number
+        def set_state(self, state):
+                self.state = state
+        def get_state(self):
+                return self.state
 
 
 class LogWindow(Gtk.ScrolledWindow):
@@ -75,13 +89,13 @@ class MyWindow(Gtk.Window):
 		togglebox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 		hbox.pack_start(togglebox, False, False, 0)
 
-		light1 = Gtk.ToggleButton("Licht 1")
-	        #light1.connect("toggled", self.on_button_toggled )
-		togglebox.pack_start(light1, False, False, 0)
+		self.light1 = Gtk.ToggleButton("Licht 1")
+		self.light1.connect("toggled", self.on_light_toggled )
+		togglebox.pack_start(self.light1, False, False, 0)
 	
-		light2 = Gtk.ToggleButton("Licht 2")
-	        #light2.connect("toggled", self.on_button_toggled )
-		togglebox.pack_start(light2, False, False, 0)
+		self.light2 = Gtk.ToggleButton("Licht 2")
+		self.light2.connect("toggled", self.on_light_toggled )
+		togglebox.pack_start(self.light2, False, False, 0)
 
 		# video
 		self.videow = Gtk.DrawingArea()
@@ -111,8 +125,8 @@ class MyWindow(Gtk.Window):
 		controlbut.pack_end(connectbutton, False, False, 0)
 
 		# gstreamer business
-		#self.player = gst.element_factory_make("playbin2", "player")
-		self.player = gst.parse_launch ("v4l2src ! autovideosink")
+		self.player = gst.element_factory_make("playbin2", "player")
+		#self.player = gst.parse_launch ("tcpclientsrc host=127.0.0.1 port=8080 ! autovideosink")
 		bus = self.player.get_bus()
 		bus.add_signal_watch()
 		bus.enable_sync_message_emission()
@@ -120,15 +134,23 @@ class MyWindow(Gtk.Window):
 		bus.connect("sync-message::element", self.on_sync_message)
 
 	def on_light_toggled(self, button):
-			
+		if self.brunken.connected:
+			if button.get_label() == "Licht 1":
+				self.brunken.toggle_light(0)
+			elif button.get_label() == "Licht 2":
+				self.brunken.toggle_light(1)
 
 	def on_connect_disconnect(self, button):
 		if button.get_label() == "Connect":
 			button.set_label("Disconnect")
 
-			# connect to server
+			self.brunken = BrunkenClient(2)
+			self.brunken.connect()
+			self.light1.set_active(self.brunken.get_light_state(0))
+			self.light2.set_active(self.brunken.get_light_state(1))
+			self.brunken.connected = True
 
-			#self.player.set_property("uri", stream_url)
+			self.player.set_property("uri", "http://127.0.0.1:8080")
 			self.player.set_state(gst.STATE_PLAYING)
 		else:
 			self.player.set_state(gst.STATE_NULL)

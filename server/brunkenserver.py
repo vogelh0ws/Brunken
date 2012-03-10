@@ -1,19 +1,24 @@
 #!/usr/bin/python -tt
 
+import serial
 from SimpleXMLRPCServer import SimpleXMLRPCServer as Server
 
 class Brunken:
 	def __init__(self, nroflights):
+		self.serial = serial.Serial('/dev/ttyUSB0', 4800)
 		self.lights = []
 		for i in range(nroflights):
 			self.lights.append(Light(i))
+	
 	def set_light_state(self, nr, state):
 		self.lights[nr].set_state(state)
+		self.serial.write(chr(nr)+chr(state))
 		return self.lights[nr].get_state()
 	def get_light_state(self, nr):
 		return self.lights[nr].get_state()
 	def get_number_of_lights(self):
 		return len(self.lights)
+	
 class Light:
 	def __init__(self, number):
 		self.number = number
@@ -31,7 +36,7 @@ class Light:
 #	except (AttributeError, TypeError):
 #		return None
 
-TCP_IP = '127.0.0.1'
+TCP_IP = '0.0.0.0'
 TCP_PORT = 29478
 
 srv = Server((TCP_IP, TCP_PORT))
