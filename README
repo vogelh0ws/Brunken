@@ -1,0 +1,24 @@
+DESCRIPTION
+================
+* controlling digital I/O of ATtiny2313 via UART messages from server
+* TCP/IP communication client<-->server with XML-RPC
+* client with gui: (toggle) buttons for digital I/O, videostream
+
+
+NOTES
+================
+
+stream video from v4l2 encoded in mjpeg with VLC:
+
+cvlc v4l2:///dev/video0 --sout '#transcode{vcodec=MJPG,vb=400}:duplicate{dst=std{access=http{mime=multipart/x-mixed-replace;boundary=--7b3cc56e5f51db803f790dad720ed50a},mux=mpjpeg,dst=:8080/webcam.mjpg}}'
+
+
+REQUIREMENTS
+================
+
+pyserial
+glade
+pygst
+pygobject
+
+
