@@ -8,6 +8,16 @@ DESCRIPTION
 NOTES
 ================
 
+best streaming solution so far mjpeg-streamer:
+
+./mjpg_streamer -i "input_uvc.so -f 5 -y" -o "output_http.so -w www -p 8080"
+
+stream location:
+
+http://localhost:8080/?action=stream
+
+
+
 stream video from v4l2 encoded in mjpeg with VLC:
 
 cvlc v4l2:///dev/video0 --sout '#transcode{vcodec=MJPG,vb=400}:duplicate{dst=std{access=http{mime=multipart/x-mixed-replace;boundary=--7b3cc56e5f51db803f790dad720ed50a},mux=mpjpeg,dst=:8080/webcam.mjpg}}'

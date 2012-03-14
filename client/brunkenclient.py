@@ -150,7 +150,7 @@ class MyWindow(Gtk.Window):
 			self.light2.set_active(self.brunken.get_light_state(1))
 			self.brunken.connected = True
 
-			self.player.set_property("uri", "http://127.0.0.1:8080")
+			self.player.set_property("uri", "http://127.0.0.1:29479")
 			self.player.set_state(gst.STATE_PLAYING)
 		else:
 			self.player.set_state(gst.STATE_NULL)
